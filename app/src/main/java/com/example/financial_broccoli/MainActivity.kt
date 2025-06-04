@@ -12,7 +12,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.financial_broccoli.ui.theme.FinancialBroccoliTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.ui.text.style.TextAlign
 
 class MainActivity : ComponentActivity() {
@@ -50,26 +50,35 @@ fun AddExpenseScreen(){
     ){
         var filledText by remember {mutableStateOf(value = "")}
         val currencySymbol by remember { mutableStateOf("€")}
-        val errorText by remember { mutableStateOf("error") }
+        var totalAmount by remember { mutableDoubleStateOf(0.0) }
 
-        Text("Total: 0.0 $currencySymbol")
+        Text("Total: $totalAmount $currencySymbol")
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Row {
             CurrencyInputField(
                 value = filledText,
-                onValueChange = {filledText = it},
+                onValueChange = { newValue ->
+                    val filteredValue = newValue.filter { it.isDigit() || it == '.' }
+                    if (filteredValue.count { it == '.' } <= 1) {
+                        filledText = filteredValue
+                    }
+                },
                 label = "Enter your expense",
                 currencySymbol = currencySymbol,
-                isError = false,
-                errorText = errorText,
             )
 
             Spacer(modifier = Modifier.width(16.dp))
 
             SumButton(
-                onClick = {/*TODO*/}
+                onClick = {
+                    if (filledText.isNotBlank()) {
+                        val expense = filledText.toDouble()
+                        totalAmount += expense
+                        filledText = ""
+                    }
+                }
             )
 
         }
@@ -96,8 +105,6 @@ fun CurrencyInputField(
     onValueChange: (String) -> Unit,
     label: String,
     currencySymbol: String,
-    isError: Boolean,
-    errorText: String,
     modifier: Modifier = Modifier
 ) {
     TextField(
@@ -105,8 +112,6 @@ fun CurrencyInputField(
         onValueChange = onValueChange,
         label = { Text(label) },
         suffix = { Text(currencySymbol) },
-        isError = isError,
-        supportingText = { if (isError) Text(errorText) },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Decimal
         ),
