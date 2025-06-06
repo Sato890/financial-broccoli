@@ -44,11 +44,7 @@ class MainActivity : ComponentActivity() {
 
         /*TODO remove fallbackToDestructiveMigration*/
 
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).fallbackToDestructiveMigration(true)
-            .build()
+        val db = AppDatabase.getInstance(applicationContext)
 
         val dao = db.expenseDao()
 
