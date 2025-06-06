@@ -1,6 +1,7 @@
 package com.example.financial_broccoli
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,23 +27,47 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.style.TextAlign
+import androidx.room.Room
+import com.example.financial_broccoli.models.AppDatabase
+import com.example.financial_broccoli.models.Expense
+import com.example.financial_broccoli.models.ExpenseDao
+
+
+private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        /*TODO remove allowMainThreadQueries and fallbackToDestructiveMigration*/
+
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "database-name"
+        ).allowMainThreadQueries()
+            .fallbackToDestructiveMigration(true)
+            .build()
+
+        val dao = db.expenseDao()
+
         setContent {
+
+            val totalExpense: Double? by dao.getTotalExpense().observeAsState()
+            val currentTotalExpense = totalExpense ?: 0.0
+
             FinancialBroccoliTheme {
-                AddExpenseScreen()
+                AddExpenseScreen(dao, currentTotalExpense)
+
             }
         }
     }
 }
 
 @Composable
-fun AddExpenseScreen(){
+fun AddExpenseScreen(dao: ExpenseDao, total: Double?){
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -50,9 +75,8 @@ fun AddExpenseScreen(){
     ){
         var filledText by remember {mutableStateOf(value = "")}
         val currencySymbol by remember { mutableStateOf("€")}
-        var totalAmount by remember { mutableDoubleStateOf(0.0) }
 
-        Text("Total: $totalAmount $currencySymbol")
+        Text("Total: $total $currencySymbol")
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -73,10 +97,14 @@ fun AddExpenseScreen(){
 
             SumButton(
                 onClick = {
-                    if (filledText.isNotBlank()) {
-                        val expense = filledText.toDouble()
-                        totalAmount += expense
-                        filledText = ""
+                    if (filledText.toDoubleOrNull() != null) {
+                        val expense = Expense(amount = filledText.toDouble())
+                        dao.addExpense(expense)
+                        val expenses: List<Expense> = dao.getAllExpenses()
+                        for (e in expenses){
+                            Log.d(TAG, "amount: $e")
+                        }
+
                     }
                 }
             )
@@ -108,6 +136,7 @@ fun CurrencyInputField(
     modifier: Modifier = Modifier
 ) {
     TextField(
+        
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
