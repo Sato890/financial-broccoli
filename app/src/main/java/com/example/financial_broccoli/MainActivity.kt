@@ -42,13 +42,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        /*TODO remove allowMainThreadQueries and fallbackToDestructiveMigration*/
+        /*TODO remove fallbackToDestructiveMigration*/
 
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "database-name"
-        ).allowMainThreadQueries()
-            .fallbackToDestructiveMigration(true)
+        ).fallbackToDestructiveMigration(true)
             .build()
 
         val dao = db.expenseDao()
@@ -99,11 +98,16 @@ fun AddExpenseScreen(dao: ExpenseDao, total: Double?){
                 onClick = {
                     if (filledText.toDoubleOrNull() != null) {
                         val expense = Expense(amount = filledText.toDouble())
-                        dao.addExpense(expense)
-                        val expenses: List<Expense> = dao.getAllExpenses()
-                        for (e in expenses){
-                            Log.d(TAG, "amount: $e")
-                        }
+
+                        Thread {
+                            dao.addExpense(expense)
+
+                            val expenses: List<Expense> = dao.getAllExpenses()
+
+                            for (e in expenses){
+                                Log.d(TAG, "amount: $e")
+                            }
+                        }.start()
 
                     }
                 }
