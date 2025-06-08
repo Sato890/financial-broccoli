@@ -42,14 +42,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AddExpenseScreen(){
+fun AddExpenseScreen() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        var filledText by remember {mutableStateOf(value = "")}
-        val currencySymbol by remember { mutableStateOf("€")}
+    ) {
+        var filledText by remember { mutableStateOf(value = "") }
+        val currencySymbol by remember { mutableStateOf("€") }
         var totalAmount by remember { mutableDoubleStateOf(0.0) }
 
         Text("Total: $totalAmount $currencySymbol")
