@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.ui.text.style.TextAlign
@@ -67,6 +68,7 @@ fun AddExpenseScreen() {
                 },
                 label = "Enter your expense",
                 currencySymbol = currencySymbol,
+                modifier = Modifier.weight(1F).fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -115,6 +117,7 @@ fun CurrencyInputField(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Decimal
         ),
+        singleLine = true,
         textStyle = LocalTextStyle.current.copy(
             textAlign = TextAlign.Right
         ),
