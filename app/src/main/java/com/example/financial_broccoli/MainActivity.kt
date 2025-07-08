@@ -29,11 +29,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.style.TextAlign
-import androidx.room.Room
+import androidx.navigation.compose.rememberNavController
 import com.example.financial_broccoli.models.AppDatabase
 import com.example.financial_broccoli.models.Expense
 import com.example.financial_broccoli.models.ExpenseDao
-
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.NavHost
 
 private const val TAG = "MainActivity"
 
@@ -54,22 +55,72 @@ class MainActivity : ComponentActivity() {
             val currentTotalExpense = totalExpense ?: 0.0
 
             FinancialBroccoliTheme {
-                AddExpenseScreen(dao, currentTotalExpense)
+                val navController = rememberNavController()
+
+                NavHost(navController = navController, startDestination = Screen.Expenses.route) {
+                    composable(Screen.Expenses.route) {
+                        AddExpenseScreen(dao, currentTotalExpense)
+                    }
+                }
 
             }
         }
     }
 }
 
+sealed class Screen(val route: String, val label: String) {
+    data object Expenses : Screen("expenses", "Expenses")
+}
+
+
+
 @Composable
-fun AddExpenseScreen(dao: ExpenseDao, total: Double?){
+fun CurrencyInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    currencySymbol: String,
+    modifier: Modifier = Modifier
+) {
+    TextField(
+
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        suffix = { Text(currencySymbol) },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Decimal
+        ),
+        textStyle = LocalTextStyle.current.copy(
+            textAlign = TextAlign.Right
+        ),
+        modifier = modifier
+    )
+}
+
+@Composable
+fun SumButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Text("Add")
+    }
+}
+
+@Composable
+fun AddExpenseScreen(dao: ExpenseDao, total: Double?) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        var filledText by remember {mutableStateOf(value = "")}
-        val currencySymbol by remember { mutableStateOf("€")}
+    ) {
+        var filledText by remember { mutableStateOf(value = "") }
+        val currencySymbol by remember { mutableStateOf("€") }
+        val navController = rememberNavController()
 
         Text("Total: $total $currencySymbol")
 
@@ -100,7 +151,7 @@ fun AddExpenseScreen(dao: ExpenseDao, total: Double?){
 
                             val expenses: List<Expense> = dao.getAllExpenses()
 
-                            for (e in expenses){
+                            for (e in expenses) {
                                 Log.d(TAG, "amount: $e")
                             }
                         }.start()
@@ -111,42 +162,6 @@ fun AddExpenseScreen(dao: ExpenseDao, total: Double?){
 
         }
 
-    }
-}
 
-@Composable
-fun SumButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        Text("Add")
     }
-}
-
-@Composable
-fun CurrencyInputField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    currencySymbol: String,
-    modifier: Modifier = Modifier
-) {
-    TextField(
-        
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        suffix = { Text(currencySymbol) },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Decimal
-        ),
-        textStyle = LocalTextStyle.current.copy(
-            textAlign = TextAlign.Right
-        ),
-        modifier = modifier
-    )
 }
