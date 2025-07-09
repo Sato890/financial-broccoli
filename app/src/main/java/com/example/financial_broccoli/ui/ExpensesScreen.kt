@@ -14,7 +14,9 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,19 +26,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.financial_broccoli.viewmodel.ExpenseViewModel
 
 @Composable
-fun ExpensesScreen() {
+fun ExpensesScreen(viewModel: ExpenseViewModel) {
+
+    val expenses by viewModel.expenses.collectAsState()
+    val totalExpense by viewModel.totalExpense.observeAsState(0.0)
+    var filledText by remember { mutableStateOf(value = "") }
+    val currencySymbol by remember { mutableStateOf("€") }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var filledText by remember { mutableStateOf(value = "") }
-        val currencySymbol by remember { mutableStateOf("€") }
-        var totalAmount by remember { mutableDoubleStateOf(0.0) }
 
-        Text("Total: $totalAmount $currencySymbol")
+
+        Text("Total: $totalExpense $currencySymbol")
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -59,9 +66,11 @@ fun ExpensesScreen() {
             SumButton(
                 onClick = {
                     if (filledText.isNotBlank()) {
-                        val expense = filledText.toDouble()
-                        totalAmount += expense
-                        filledText = ""
+                        val amount = filledText.toDoubleOrNull()
+                        if (amount != null) {
+                            viewModel.addExpense(amount) // Save to DB
+                            filledText = ""
+                        }
                     }
                 }
             )

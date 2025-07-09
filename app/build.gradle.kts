@@ -60,6 +60,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
     val roomVersion = "2.7.1"
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
