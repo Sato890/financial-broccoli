@@ -1,4 +1,4 @@
-package com.example.financial_broccoli.ui.theme
+package com.example.financial_broccoli.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
