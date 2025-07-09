@@ -1,10 +1,4 @@
-package com.example.financial_broccoli.data
-
-import androidx.lifecycle.LiveData
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
+package com.example.financial_broccoli.feature_expense.data
 
 class ExpenseRepository(private val dao: ExpenseDao) {
     val allExpenses = dao.getAllExpenses()

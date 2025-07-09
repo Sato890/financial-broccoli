@@ -1,6 +1,5 @@
-package com.example.financial_broccoli.ui.theme
+package com.example.financial_broccoli.core.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

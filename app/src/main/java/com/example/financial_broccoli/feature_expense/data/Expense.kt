@@ -1,4 +1,4 @@
-package com.example.financial_broccoli.data
+package com.example.financial_broccoli.feature_expense.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

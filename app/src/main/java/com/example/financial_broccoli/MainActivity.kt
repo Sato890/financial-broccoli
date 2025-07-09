@@ -4,15 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.financial_broccoli.ui.theme.FinancialBroccoliTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.financial_broccoli.core.ui.theme.FinancialBroccoliTheme
 import androidx.navigation.compose.rememberNavController
-import com.example.financial_broccoli.data.AppDatabase
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
-import com.example.financial_broccoli.data.ExpenseRepository
-import com.example.financial_broccoli.ui.ExpensesScreen
-import com.example.financial_broccoli.viewmodel.ExpenseViewModel
-import com.example.financial_broccoli.viewmodel.ExpenseViewModelFactory
+import com.example.financial_broccoli.feature_expense.data.ExpenseRepository
+import com.example.financial_broccoli.feature_expense.ui.ExpensesScreen
+import com.example.financial_broccoli.feature_expense.ExpenseViewModel
+import com.example.financial_broccoli.feature_expense.ExpenseViewModelFactory
+import com.example.financial_broccoli.feature_expense.data.ExpenseDatabase
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
 
         /*TODO remove fallbackToDestructiveMigration*/
 
-        val db = AppDatabase.getInstance(applicationContext)
+        val db = ExpenseDatabase.getInstance(applicationContext)
         val dao = db.expenseDao()
         val repository = ExpenseRepository(dao)
         val viewModelFactory = ExpenseViewModelFactory(repository)
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(navController = navController, startDestination = Screen.Expenses.route) {
                     composable(Screen.Expenses.route) {
-                        val viewModel: ExpenseViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                        val viewModel: ExpenseViewModel = viewModel(
                             factory = viewModelFactory
                         )
                         ExpensesScreen(viewModel = viewModel)
